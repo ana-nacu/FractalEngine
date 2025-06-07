@@ -14,10 +14,10 @@ public:
     bool loadFromOBJ(const std::string& path);
     void draw(Shader& shader);
     bool loadFromOBJWithNormalsDebug(const std::string &path);
-
+    void setupMesh();
 
 private:
-    void setupMesh();
+
 
     std::vector<glm::vec3> vertices;
     std::vector<glm::vec3> normals;

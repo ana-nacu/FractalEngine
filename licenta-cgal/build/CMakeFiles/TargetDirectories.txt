@@ -1,0 +1,3 @@
+/Users/Ana/Downloads/FractalEngine/licenta-cgal/build/CMakeFiles/mesh_opt.dir
+/Users/Ana/Downloads/FractalEngine/licenta-cgal/build/CMakeFiles/edit_cache.dir
+/Users/Ana/Downloads/FractalEngine/licenta-cgal/build/CMakeFiles/rebuild_cache.dir

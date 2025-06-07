@@ -4,7 +4,7 @@ import os
 
 lsystems = {
     "SimpleTree": {
-        "axiom": "A(50)",
+        "axiom": "A(10)",
         "rules": ["A(s) -> F(s)[+A(s/1.456)][-A(s/1.456)][^A(s/1.456)][&A(s/1.456)]"],
         "constants": {
             "R": 1.456
@@ -47,7 +47,7 @@ os.makedirs(output_dir_obj, exist_ok=True)
 #     axiom = data["axiom"]
 #     rules = data["rules"]
 #     constants = data.get("constants", {})
-#     result = generate_lsystem(axiom, rules, 11, constants)
+#     result = generate_lsystem(axiom, rules, 9, constants)
 #
 #     rule_type = (
 #         "parametric" if is_parametric(rules)

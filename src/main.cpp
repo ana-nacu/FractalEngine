@@ -11,6 +11,8 @@
 #include <sys/stat.h>
 #include <memory>
 #include <map>
+extern float rotationX;
+extern float rotationY;
 
 // Forward declaration
 void renderScene(Window& window, Shader& shader_tree, Shader& shader_sphere, Mesh& ground, glm::mat4& projection, float currentFrame, float deltaTime);
@@ -27,21 +29,26 @@ struct TreeSlot {
 std::vector<TreeSlot> treeSlots;
 
 std::string randomTreeBaseName(std::default_random_engine& rng) {
-//    std::vector<std::string> species = {"FernParametric__parametric_"};
-//    std::uniform_int_distribution<size_t> dist(0, species.size() - 1);
-//    return species[dist(rng)];
-    return "FernParametric__parametric_";
+    std::vector<std::string> species = {"FernParametric__parametric_", "SimpleTree__parametric_", "StochasticTree__stochastic_", "Tree__standard_"};
+    std::uniform_int_distribution<size_t> dist(0, species.size() - 1);
+    return species[dist(rng)];
+//    return "FernParametric__parametric_";
 }
 
 void initSlotGridDiagonal() {
     treeSlots.clear();
 
-    std::vector<std::string> species = {"TreeA", "TreeB", "TreeC", "TreeD"};
+    std::vector<std::string> species = {"FernParametric__parametric_", "SimpleTree__parametric_", "StochasticTree__stochastic_", "Tree__standard_"};
+//    std::vector<std::string> species = {"TreeA", "TreeB", "TreeC", "TreeD"};
     int slotsPerSpecies = 6;
     int gridSize = 6; // 6x6 grid
     float spacing = 10.0f;
 
     for (int s = 0; s < (int)species.size(); ++s) {
+        int offset = 0;
+        if (species[s].find("FernParametric__parametric_") != std::string::npos) {
+            offset = 7;
+        }
         // Calculate sector start positions for each species in the grid
         // Divide grid into 4 sectors: top-left, top-right, bottom-left, bottom-right
         int sectorRow = s / 2;
@@ -60,7 +67,7 @@ void initSlotGridDiagonal() {
 
                 for (int k = 1; k <= 6; ++k) {
                     auto mesh = std::make_shared<Mesh>();
-                    std::string path = "../lsysGrammar/generated_objs/" + species[s] + "_iter_" + std::to_string(k) + ".obj";
+                    std::string path = "../lsysGrammar/Catalog/" + species[s] + "_iter_" + std::to_string(k+offset) + ".obj";
                     if (mesh->loadFromOBJWithNormalsDebug(path)) {
                         slot.evolutionStages.push_back(mesh);
                     }
@@ -96,9 +103,13 @@ int main() {
             slot.position = glm::vec3(j * spacing - cols * spacing / 2.0f, 0.0f, i * spacing - rows * spacing / 2.0f);
 
             std::string baseName = randomTreeBaseName(rng);
-            for (int k = 8; k <= 16; ++k) {
+            int offset = 0;
+            if (baseName.find("FernParametric__parametric_") != std::string::npos) {
+                offset = 7;
+            }
+            for (int k = 1; k <= 6; ++k) {
                 auto mesh = std::make_shared<Mesh>();
-                std::string path = "../lsysGrammar/generated_objs/" + baseName + "_iter_" + std::to_string(k) + ".obj";
+                std::string path = "../lsysGrammar/Catalog_opt/" + baseName + "_iter_" + std::to_string(k+offset) + ".obj";
                 if (mesh->loadFromOBJWithNormalsDebug(path)) {
                     slot.evolutionStages.push_back(mesh);
                 }
@@ -168,10 +179,11 @@ void renderSceneDiagonal(Window& window, Shader& shader_tree, Shader& shader_sph
     glEnable(GL_DEPTH_TEST);
 
     shader_sphere.use();
-
-    // Render ground
     glm::mat4 model = glm::mat4(1.0f);
+    glm::mat4 view1 = window.camera.GetViewMatrix();
     glUniformMatrix4fv(glGetUniformLocation(shader_sphere.ID, "model"), 1, GL_FALSE, glm::value_ptr(model));
+    glUniformMatrix4fv(glGetUniformLocation(shader_sphere.ID, "view"), 1, GL_FALSE, glm::value_ptr(view1));
+    glUniformMatrix4fv(glGetUniformLocation(shader_sphere.ID, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
     ground.draw(shader_sphere);
 
     shader_tree.use();
@@ -185,13 +197,17 @@ void renderSceneDiagonal(Window& window, Shader& shader_tree, Shader& shader_sph
                 window.camera.Position.y,
                 window.camera.Position.z);
 
+    // 🔁 Matrice de rotație globală a scenei
+    glm::mat4 sceneRotationMatrix = glm::rotate(glm::mat4(1.0f), rotationY, glm::vec3(0.0f, 1.0f, 0.0f));
+    sceneRotationMatrix = glm::rotate(sceneRotationMatrix, rotationX, glm::vec3(1.0f, 0.0f, 0.0f));
+
     for (auto& slot : treeSlots) {
         if (currentFrame - slot.lastSwitchTime > 1.5f) {
             slot.currentStage = (slot.currentStage + 1) % slot.evolutionStages.size();
             slot.lastSwitchTime = currentFrame;
         }
 
-        glm::mat4 modelTree = glm::translate(glm::mat4(1.0f), slot.position);
+        glm::mat4 modelTree = sceneRotationMatrix * glm::translate(glm::mat4(1.0f), slot.position);
         glUniformMatrix4fv(glGetUniformLocation(shader_tree.ID, "model"), 1, GL_FALSE, glm::value_ptr(modelTree));
         slot.evolutionStages[slot.currentStage]->draw(shader_tree);
     }
