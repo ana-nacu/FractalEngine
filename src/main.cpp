@@ -17,6 +17,9 @@
 #include <string>
 #include <iostream>
 #include <iomanip>
+#include <fstream>
+#include <chrono>
+#include <iomanip>
 extern float rotationX;
 extern float rotationY;
 
@@ -25,6 +28,7 @@ void renderScene(Window& window, Shader& shader_tree, Shader& shader_sphere, Mes
 void initSlotGridDiagonal();
 void renderSceneDiagonal(Window& window, Shader& shader_tree, Shader& shader_sphere, Mesh& ground, glm::mat4& projection, float currentFrame, float deltaTime);
 void benchMode(int count, int frames, const std::string& out_csv);
+void initSlotsSingleModel(const std::string& obj_path, int count, float spacing);
 
 struct TreeSlot {
     std::vector<std::shared_ptr<Mesh>> evolutionStages;
@@ -157,7 +161,26 @@ int main(int argc, char** argv) {
     }
     return 0;
 }
+// Înainte de benchMode, sau într-un header vizibil:
+void initSlotsSingleModel(const std::string& obj_path, int count, float spacing = 10.0f) {
+    treeSlots.clear();
+    // Încarc o singură dată mesh-ul „master”
+    auto master = std::make_shared<Mesh>();
+    if (!master->loadFromOBJWithNormalsDebug(obj_path)) {
+        std::cerr << "❌ Fail loading model for benchmarking: " << obj_path << "\n";
+        std::exit(1);
+    }
 
+    // Aşez „count” instanţe ale lui master în grid liniar
+    for (int i = 0; i < count; ++i) {
+        TreeSlot slot;
+        slot.evolutionStages.push_back(master);
+        slot.currentStage  = 0;
+        // poziţia pe axa X, cu spacing
+        slot.position = glm::vec3((i - count/2.0f) * spacing, 0.0f, 0.0f);
+        treeSlots.push_back(slot);
+    }
+}
 void renderScene(Window& window, Shader& shader_tree, Shader& shader_sphere, Mesh& ground, glm::mat4& projection, float currentFrame, float deltaTime) {
     window.processInput(deltaTime);
     glClearColor(0.2f, 0.3f, 0.4f, 1.0f);
@@ -196,67 +219,114 @@ void renderScene(Window& window, Shader& shader_tree, Shader& shader_sphere, Mes
     window.update();
 }
 
-#include <fstream>
-#include <chrono>
-#include <iomanip>
+
+
 
 void benchMode(int count, int frames, const std::string& out_csv) {
-    // Initialize GLFW + window (visible for a valid context)
+    // 1) Initialize GLFW + headless window
     if (!glfwInit()) {
         std::cerr << "❌ glfwInit failed\n";
         return;
     }
+    // create invisible context
     Window window(640, 480, "Benchmark");
-    // Load shaders exactly as in demo
-    Shader shader_tree("../shaders/vertex-fractal.glsl", "../shaders/fragment-copac.glsl");
-    Shader shader_sphere("../shaders/vertex-sfera.glsl", "../shaders/fragment-sfera.glsl");
-    // Load ground mesh
+
+    // 2) Load shaders
+    Shader shader_tree("../shaders/vertex-fractal.glsl",
+                       "../shaders/fragment-copac.glsl");
+    Shader shader_sphere("../shaders/vertex-sfera.glsl",
+                         "../shaders/fragment-sfera.glsl");
+
+    // 3) Load ground mesh (already sets up VAO/VBO in load)
     Mesh ground;
-    if (!ground.loadFromOBJWithNormalsDebug("../lsysGrammar/precomputed_lsystems_old/plane50.obj")) {
+    if (!ground.loadFromOBJWithNormalsDebug(
+                "../lsysGrammar/precomputed_lsystems_old/plane50.obj")) {
         std::cerr << "❌ Fail loading ground mesh\n";
+        glfwTerminate();
         return;
     }
-    ground.setupMesh();
 
-    // Initialize tree slots
-    initSlotGridDiagonal();
+    // 4) Prepare scene: a single model instantiated `count` times
+    const std::string modelPath = "../lsysGrammar/Catalog_opt/Tree__standard__iter_5.obj";
+    initSlotsSingleModel(modelPath, count, /*spacing=*/5.0f);
 
-    // Prepare projection matrix
-    glm::mat4 projection = glm::perspective(glm::radians(45.0f),
-                                            640.0f / 480.0f,
-                                            0.1f, 100.0f);
+    // 5) Projection matrix
+    glm::mat4 projection = glm::perspective(
+            glm::radians(45.0f),
+            640.0f / 480.0f,
+            0.1f, 100.0f
+    );
 
-    // Open CSV file
+    // 6) Open CSV
     std::ofstream csv(out_csv);
     if (!csv) {
-        std::cerr << "❌ Cannot open CSV: " << out_csv << std::endl;
+        std::cerr << "❌ Cannot open CSV: " << out_csv << "\n";
+        glfwTerminate();
         return;
     }
-    csv << "frame,dt_ms\n";
+    csv << "frame,dt_ms,fps\n";
 
-    // Benchmark loop
+    // 7) Measure CPU time at start
+    rusage usage_start{};
+    getrusage(RUSAGE_SELF, &usage_start);
+
+    double sum_dt = 0.0;
     for (int f = 0; f < frames; ++f) {
         auto t0 = std::chrono::high_resolution_clock::now();
 
-        // Render one frame: clear + draw all slots
+        // render one frame
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        renderSceneDiagonal(window, shader_tree, shader_sphere,
-                            ground, projection,
-                            /*currentFrame=*/static_cast<float>(f),
-                            /*deltaTime=*/0.0f);
-
-        // Ensure GPU work is done
+        renderSceneDiagonal(window,
+                            shader_tree,
+                            shader_sphere,
+                            ground,
+                            projection,
+                            static_cast<float>(f),
+                            0.0f);
         glFinish();
 
         auto t1 = std::chrono::high_resolution_clock::now();
         double dt = std::chrono::duration<double, std::milli>(t1 - t0).count();
-        csv << f << "," << std::fixed << std::setprecision(3) << dt << "\n";
-    }
-    csv.close();
+        sum_dt += dt;
+        double fps = (dt > 0.0) ? (1000.0 / dt) : 0.0;
 
-    // Cleanup
+        csv << f << ","
+            << std::fixed << std::setprecision(3) << dt << ","
+            << std::fixed << std::setprecision(1) << fps
+            << "\n";
+    }
+
+    // 8) Measure CPU time at end
+    rusage usage_end{};
+    getrusage(RUSAGE_SELF, &usage_end);
+
+    double user_sec = (usage_end.ru_utime.tv_sec  - usage_start.ru_utime.tv_sec)
+                      + (usage_end.ru_utime.tv_usec - usage_start.ru_utime.tv_usec) / 1e6;
+    double sys_sec  = (usage_end.ru_stime.tv_sec  - usage_start.ru_stime.tv_sec)
+                     + (usage_end.ru_stime.tv_usec - usage_start.ru_stime.tv_usec) / 1e6;
+    long   peak_rss_kb = usage_end.ru_maxrss;  // kilobytes
+
+    // 9) Write summary line
+    double avg_dt  = sum_dt / frames;
+    double avg_fps = (avg_dt > 0.0) ? (1000.0 / avg_dt) : 0.0;
+    double cpu_sec = user_sec + sys_sec;
+
+    csv << "summary,"
+        << std::fixed << std::setprecision(3) << avg_dt << ","
+        << std::fixed << std::setprecision(1) << avg_fps << "\n"
+        << "cpu_time," << std::fixed << std::setprecision(3) << cpu_sec << ",\n"
+        << "peak_rss_kb," << peak_rss_kb << ",\n";
+
+    csv.close();
     glfwTerminate();
+
+    // 10) Print high-level summary
+    std::cout << "👉 Benchmark (" << count << " instances, " << frames
+              << " frames): avg FPS=" << std::fixed << std::setprecision(1)
+              << avg_fps << ", CPU=" << std::fixed << std::setprecision(3)
+              << cpu_sec << "s, peak RSS=" << peak_rss_kb << "KB\n";
 }
+
 
 void renderSceneDiagonal(Window& window, Shader& shader_tree, Shader& shader_sphere, Mesh& ground, glm::mat4& projection, float currentFrame, float deltaTime) {
     window.processInput(deltaTime);
