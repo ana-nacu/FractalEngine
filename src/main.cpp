@@ -11,6 +11,12 @@
 #include <sys/stat.h>
 #include <memory>
 #include <map>
+#include <chrono>
+#include <cstring>
+#include <cstdlib>
+#include <string>
+#include <iostream>
+#include <iomanip>
 extern float rotationX;
 extern float rotationY;
 
@@ -18,6 +24,7 @@ extern float rotationY;
 void renderScene(Window& window, Shader& shader_tree, Shader& shader_sphere, Mesh& ground, glm::mat4& projection, float currentFrame, float deltaTime);
 void initSlotGridDiagonal();
 void renderSceneDiagonal(Window& window, Shader& shader_tree, Shader& shader_sphere, Mesh& ground, glm::mat4& projection, float currentFrame, float deltaTime);
+void benchMode(int count, int frames, const std::string& out_csv);
 
 struct TreeSlot {
     std::vector<std::shared_ptr<Mesh>> evolutionStages;
@@ -84,7 +91,24 @@ void initSlotGridDiagonal() {
     }
 }
 
-int main() {
+int main(int argc, char** argv) {
+    // --- Benchmark mode parsing ---
+    bool benchmark = false;
+    int bench_count = 0, bench_frames = 0;
+    std::string bench_out;
+    for (int i = 1; i < argc; ++i) {
+        if (std::strcmp(argv[i], "--benchmark") == 0 && i + 3 < argc) {
+            benchmark = true;
+            bench_count = std::atoi(argv[++i]);
+            bench_frames = std::atoi(argv[++i]);
+            bench_out    = argv[++i];
+        }
+    }
+    if (benchmark) {
+        benchMode(bench_count, bench_frames, bench_out);
+        return 0;
+    }
+
     Window window(1600, 900, "Fractal Evolution");
     Shader shader_tree("../shaders/vertex-fractal.glsl", "../shaders/fragment-copac.glsl");
     Shader shader_sphere("../shaders/vertex-sfera.glsl", "../shaders/fragment-sfera.glsl");
@@ -170,6 +194,68 @@ void renderScene(Window& window, Shader& shader_tree, Shader& shader_sphere, Mes
     }
 
     window.update();
+}
+
+#include <fstream>
+#include <chrono>
+#include <iomanip>
+
+void benchMode(int count, int frames, const std::string& out_csv) {
+    // Initialize GLFW + window (visible for a valid context)
+    if (!glfwInit()) {
+        std::cerr << "❌ glfwInit failed\n";
+        return;
+    }
+    Window window(640, 480, "Benchmark");
+    // Load shaders exactly as in demo
+    Shader shader_tree("../shaders/vertex-fractal.glsl", "../shaders/fragment-copac.glsl");
+    Shader shader_sphere("../shaders/vertex-sfera.glsl", "../shaders/fragment-sfera.glsl");
+    // Load ground mesh
+    Mesh ground;
+    if (!ground.loadFromOBJWithNormalsDebug("../lsysGrammar/precomputed_lsystems_old/plane50.obj")) {
+        std::cerr << "❌ Fail loading ground mesh\n";
+        return;
+    }
+    ground.setupMesh();
+
+    // Initialize tree slots
+    initSlotGridDiagonal();
+
+    // Prepare projection matrix
+    glm::mat4 projection = glm::perspective(glm::radians(45.0f),
+                                            640.0f / 480.0f,
+                                            0.1f, 100.0f);
+
+    // Open CSV file
+    std::ofstream csv(out_csv);
+    if (!csv) {
+        std::cerr << "❌ Cannot open CSV: " << out_csv << std::endl;
+        return;
+    }
+    csv << "frame,dt_ms\n";
+
+    // Benchmark loop
+    for (int f = 0; f < frames; ++f) {
+        auto t0 = std::chrono::high_resolution_clock::now();
+
+        // Render one frame: clear + draw all slots
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        renderSceneDiagonal(window, shader_tree, shader_sphere,
+                            ground, projection,
+                            /*currentFrame=*/static_cast<float>(f),
+                            /*deltaTime=*/0.0f);
+
+        // Ensure GPU work is done
+        glFinish();
+
+        auto t1 = std::chrono::high_resolution_clock::now();
+        double dt = std::chrono::duration<double, std::milli>(t1 - t0).count();
+        csv << f << "," << std::fixed << std::setprecision(3) << dt << "\n";
+    }
+    csv.close();
+
+    // Cleanup
+    glfwTerminate();
 }
 
 void renderSceneDiagonal(Window& window, Shader& shader_tree, Shader& shader_sphere, Mesh& ground, glm::mat4& projection, float currentFrame, float deltaTime) {
