@@ -1,0 +1,3 @@
+#params: angle=18
+#params: rotation_y=random
+F(0.60)F(0.60)F(0.60)A(3.00)

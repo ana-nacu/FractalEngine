@@ -1,5 +1,6 @@
 import re
 import json
+import random
 from typing import List, Dict
 
 # ------------------------ Rule Type Detectors ------------------------
@@ -51,33 +52,36 @@ def apply_rule(symbol: str, rules: List[str], params: Dict[str, float]) -> str:
                     except:
                         continue
 
-                def eval_expr(expr):
+                def eval_expr(expr: str) -> str:
                     try:
-                        # return str(eval(expr, {}, local_env))
-                        return "{:.2f}".format(eval(expr, {}, local_env))
+                        return "{:.2f}".format(eval(expr.strip(), {}, local_env))
                     except:
                         return expr
 
-                result = re.sub(r"([A-Z])\(([^)]+)\)",
-                                lambda m: f"{m.group(1)}({eval_expr(m.group(2))})",
-                                successor)
+                # EXTINS: permite și simboluri direcționale cu parametri: +(), -(), ^(), etc.
+                result = re.sub(
+                    r"([A-Za-z\+\-\&\^\|\\/])\(([^)]+)\)",
+                    lambda m: f"{m.group(1)}({eval_expr(m.group(2))})",
+                    successor
+                )
                 return result
+
         elif is_standard([rule]):
             lhs, rhs = map(str.strip, rule.split("->"))
             if symbol == lhs:
                 return rhs
+
         elif is_stochastic(rules):
-            import random
             stochastic_rules = []
             for rule in rules:
                 parts = rule.split("->")
                 if len(parts) == 3:
                     try:
                         probability = float(parts[0].strip())
-                        symbol = parts[1].strip()
+                        symbol_match = parts[1].strip()
                         replacement = parts[2].strip()
-                        if symbol == symbol.strip():
-                            stochastic_rules.append((probability, symbol, replacement))
+                        if symbol == symbol_match:
+                            stochastic_rules.append((probability, symbol_match, replacement))
                     except ValueError:
                         continue
 
@@ -86,31 +90,31 @@ def apply_rule(symbol: str, rules: List[str], params: Dict[str, float]) -> str:
             cumulative = 0.0
             for prob, sym, repl in stochastic_rules:
                 cumulative += prob
-                if r <= cumulative and sym == symbol:
+                if r <= cumulative:
                     return repl
+
     return symbol
 
 def generate_lsystem(axiom: str, rules: List[str], iterations: int, params: Dict[str, float]) -> List[str]:
     result = [axiom]
     current = axiom
-    for i in range(iterations):
+    for _ in range(iterations):
         next_str = ""
         i = 0
         while i < len(current):
-            if current[i].isalpha():
+            if current[i].isalpha() or current[i] in "+-&^\\/|":
                 j = i + 1
                 if j < len(current) and current[j] == "(":
-                    # parametric symbol
                     k = current.find(")", j)
-                    token = current[i:k+1]
-                    next_str += apply_rule(token, rules, params)
-                    i = k + 1
-                else:
-                    next_str += apply_rule(current[i], rules, params)
-                    i += 1
+                    if k != -1:
+                        token = current[i:k+1]
+                        next_str += apply_rule(token, rules, params)
+                        i = k + 1
+                        continue
+                next_str += apply_rule(current[i], rules, params)
             else:
                 next_str += current[i]
-                i += 1
+            i += 1
         result.append(next_str)
         current = next_str
     return result

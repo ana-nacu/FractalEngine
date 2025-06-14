@@ -202,4 +202,4 @@ frame,dt_ms,fps
 summary,10.909,91.7
 cpu_time,0.248,
 peak_rss_kb,49774592,
-vertex_count,150800,,
+vertex_count,150800,

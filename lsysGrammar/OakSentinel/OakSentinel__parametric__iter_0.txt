@@ -1,0 +1,3 @@
+#params: angle=28
+#params: rotation_y=random
+A(6)

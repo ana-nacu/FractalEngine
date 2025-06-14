@@ -1,0 +1,3 @@
+#params: angle=25
+#params: rotation_y=random
+F[+F][-F][^F][&F]
