@@ -241,21 +241,53 @@ lsystems = {
 #     "angle": 75,
 #     "random_y_rotation": True
 # },
-"EntropicTitan": {
-    "axiom": "F",
-    "rules": [
-        "0.25 -> F -> F[+F]F[-F]^F",
-        "0.25 -> F -> F[+F][-F]&F",
-        "0.25 -> F -> F[-F]F[+F]^F",
-        "0.25 -> F -> F"
-    ],
-    "constants": {},
-    "angle": 27,
-    "random_y_rotation": True
-},
+# "RandomDream": {
+#     "axiom": "F",
+#     "rules": [
+#         "0.5 -> F -> [+F]F[-F]^F",
+#         "0.25 -> F -> F[+F][-F]&F",
+#         "0.25 -> F -> F"
+#     ],
+#     "constants": {},
+#     "angle": 67,
+#     "random_y_rotation": True
+ # },
+#     "ThunderstruckGiant": {
+#         "axiom": "+F(2.0)A(2.0)",
+#         "rules": [
+#             "A(a) : a > 0.05 -> "
+#             "[+^F(a * r)A(a * r1)]"
+#             "[+&F(a * r1)A(a * r)][+&&F(a * r1)A(a * r)]",
+#             "F(x) -> F(x)"
+#         ],
+#         "constants": {
+#             "r": 0.707,
+#             "r1": 0.35
+#         },
+#         "angle": 20,
+#         "random_y_rotation": True
+#     },
+    "GoldenOaktree": {
+        "axiom": "A(1.0)",
+        "rules": [
+            "A(a) : a > 0.05 -> F(a)"
+            "[+A(a * rB)]"
+            "[-A(a * rB)]"
+            "[^A(a * rB)]"
+            "[&A(a * rB)]"
+            "A(a * rA)",
+            "F(x) -> F(x)"
+        ],
+        "constants": {
+            "rA": 0.618,  # vertical continuation
+            "rB": 0.382  # side branches
+        },
+        "angle": 72,
+        "random_y_rotation": True
+    }
 }
-output_dir_txt = "FractalBinaryTree"
-output_dir_obj = "FractalBinaryTree_obj"
+output_dir_txt = "GoldenOaktree"
+output_dir_obj = "GoldenOaktree_obj"
 # output_dir_txt = "benchmark_lsystems"
 # output_dir_obj = "benchmark_lsystems_obj"
 os.makedirs(output_dir_txt, exist_ok=True)
@@ -266,7 +298,7 @@ for name, data in lsystems.items():
     axiom = data["axiom"]
     rules = data["rules"]
     constants = data.get("constants", {})
-    result = generate_lsystem(axiom, rules, 10, constants)
+    result = generate_lsystem(axiom, rules, 7, constants)
 
     rule_type = (
         "parametric" if is_parametric(rules)

@@ -153,7 +153,7 @@ def generate_leaf_meshes(branches, scale=1.0):
 
         start, end = matching_branch
         direction = normalize(np.array(end) - np.array(start))
-        thickness = np.linalg.norm(np.array(end) - np.array(start)) * 200.0  # 🍃 scalare vizibil
+        thickness = np.linalg.norm(np.array(end) - np.array(start)) * 100.0  # 🍃 scalare vizibil
         # mai mare
 
         def rotation_between_vectors(a, b):

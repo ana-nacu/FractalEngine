@@ -1,3 +1,0 @@
-#params: angle=72
-#params: rotation_y=random
-A(1.0)
