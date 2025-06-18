@@ -1,3 +1,11 @@
+#include <unordered_map>
+#include <map>
+#include <string>
+#include <unordered_map>
+// Species-specific iteration offset for demo rendering
+std::unordered_map<std::string, int> speciesIterationOffset = {
+    {"HighlandOak", 13}
+};
 #include "core/Window.h"
 #include "core/Shader.h"
 #include "core/Mesh.h"
@@ -29,6 +37,9 @@ void initSlotGridDiagonal();
 void renderSceneDiagonal(Window& window, Shader& shader_tree, Shader& shader_sphere, Mesh& ground, glm::mat4& projection, float currentFrame, float deltaTime);
 void benchMode(int count, int frames, const std::string& out_csv);
 void initSlotsSingleModel(const std::string& obj_path, int count, float spacing);
+void renderSceneDemo(Window& window, Shader& shader_tree, Shader& shader_sphere, Mesh& ground, glm::mat4& projection, float currentFrame, float deltaTime);
+void initDemoSlots();
+
 
 struct TreeSlot {
     std::vector<std::shared_ptr<Mesh>> evolutionStages;
@@ -95,6 +106,108 @@ void initSlotGridDiagonal() {
     }
 }
 
+// Structure to hold trunk and leaf mesh pair for a stage
+struct TreeWithLeaves {
+    std::shared_ptr<Mesh> trunk;
+    std::shared_ptr<Mesh> leaves;
+    std::string speciesName;
+};
+
+struct TreeSlotWithLeaves {
+    std::vector<TreeWithLeaves> evolutionStages;
+    int currentStage = 0;
+    float lastSwitchTime = 0.0f;
+    glm::vec3 position;
+};
+
+// Keep the original vector for compatibility with renderSceneDemo
+static std::vector<TreeSlotWithLeaves> treeSlotsDemo;
+
+// Map with trunk/leaf colors for each species
+std::map<std::string, std::pair<glm::vec3, glm::vec3>> speciesColors = {
+    {"SpiralGuardian",      {{0.45f, 0.25f, 0.1f},  {1.0f, 0.6f, 0.8f}}},
+    {"EntropicTitan",       {{0.3f,  0.2f, 0.1f},   {0.6f, 1.0f, 0.6f}}},
+    {"HighlandOak",         {{0.4f,  0.2f, 0.05f},  {0.3f, 0.8f, 0.2f}}},
+    {"GoldenPineTree",      {{0.35f, 0.22f, 0.05f}, {0.1f, 0.5f, 0.1f}}},
+    {"RandomDream",         {{0.3f,  0.15f, 0.1f},  {0.9f, 0.9f, 0.3f}}},
+    {"ThunderstruckGiant",  {{0.25f, 0.2f, 0.1f},   {0.7f, 0.5f, 1.0f}}},
+    {"GoldenOaktree",       {{0.5f,  0.35f, 0.1f},  {0.9f, 0.75f, 0.2f}}}
+};
+
+// Helper for grid position
+static glm::vec3 computeSlotPosition(int speciesIdx, int slotIdx) {
+    int cols = 7;
+    int rows = 4;
+    float spacingX = 9.0f;
+    float spacingZ = 10.0f;
+    float x = (speciesIdx - cols / 2.0f) * spacingX;
+    float z = (slotIdx - rows / 2.0f) * spacingZ;
+    return glm::vec3(x, 0.0f, z);
+}
+
+void initDemoSlots() {
+    treeSlotsDemo.clear();
+
+    std::vector<std::string> demoSpeciesNames = {
+        "GoldenOaktree__parametric_", "GoldenPineTree__parametric_",
+        "EntropicTitan__stochastic_", "RandomDream__stochastic_", "HighlandOak__parametric_",
+        "SpiralGuardian__parametric_", "ThunderstruckGiant__parametric_"
+    };
+
+    // For each species, load all 7 stages (iter_1 to iter_7, possibly offset), then create 4 slots per species
+    float zSpacing = 8.0f;
+    for (int i = 0; i < (int)demoSpeciesNames.size(); ++i) {
+        const std::string& name = demoSpeciesNames[i];
+        int offset = 0;
+        // Remove trailing "__parametric_" or "__stochastic_" for offset lookup
+        std::string baseName = name;
+        size_t pos = baseName.find("__parametric_");
+        if (pos != std::string::npos) baseName = baseName.substr(0, pos);
+        pos = baseName.find("__stochastic_");
+        if (pos != std::string::npos) baseName = baseName.substr(0, pos);
+        if (speciesIterationOffset.find(baseName) != speciesIterationOffset.end()) {
+            offset = speciesIterationOffset[baseName];
+        }
+        // Extract speciesName for color mapping (remove suffixes)
+        std::string speciesName = name;
+        size_t speciesPos = speciesName.find("__parametric_");
+        if (speciesPos != std::string::npos) speciesName = speciesName.substr(0, speciesPos);
+        speciesPos = speciesName.find("__stochastic_");
+        if (speciesPos != std::string::npos) speciesName = speciesName.substr(0, speciesPos);
+
+        // Load all 7 stages, iter_1 to iter_7 (or offsetted)
+        std::vector<TreeWithLeaves> evolutionStages;
+        for (int k = 1; k <= 7; ++k) {
+            std::string iterStr = std::to_string(k + offset);
+            std::string meshName = name + "_iter_" + iterStr + ".obj";
+            std::string leafName = name + "_iter_" + iterStr + "_leaf.obj";
+
+            TreeWithLeaves stage;
+            stage.trunk = std::make_shared<Mesh>();
+            stage.leaves = std::make_shared<Mesh>();
+            stage.speciesName = speciesName;
+            bool trunkLoaded = stage.trunk->loadFromOBJWithNormalsDebug("../lsysGrammar/Demo/" + meshName);
+            bool leafLoaded = stage.leaves->loadFromOBJWithNormalsDebug("../lsysGrammar/Demo/" + leafName);
+            if (trunkLoaded /*&& leafLoaded*/) {
+                evolutionStages.push_back(stage);
+            }
+        }
+        // Ensure order is ascending by k (already is)
+        // For the 4 demo slots, assign all stages but start at iter_4..iter_7 (indices 3..6)
+        for (int j = 0; j < 4; ++j) {
+            if (evolutionStages.size() < 7) continue; // skip incomplete species
+            TreeSlotWithLeaves slot;
+            slot.evolutionStages = evolutionStages;
+            slot.currentStage = j + 3; // 3,4,5,6 (iter_4 to iter_7)
+            slot.lastSwitchTime = 0.0f;
+            // Layout: 4 slots per species along Z axis, closest (iter_4) at z=0, then further back
+            float xOffset = (i - demoSpeciesNames.size()/2.0f) * 9.0f;
+            slot.position = glm::vec3(xOffset, 0.0f, -j * zSpacing);
+            treeSlotsDemo.push_back(slot);
+        }
+    }
+}
+
 int main(int argc, char** argv) {
     // --- Benchmark mode parsing ---
     bool benchmark = false;
@@ -119,7 +232,8 @@ int main(int argc, char** argv) {
     Mesh ground;
     ground.loadFromOBJWithNormalsDebug("../lsysGrammar/precomputed_lsystems_old/plane50.obj");
 
-    initSlotGridDiagonal();
+    //initSlotGridDiagonal();
+    initDemoSlots();
 
     int rows = 4, cols = 5;
     float spacing = 10.0f;
@@ -157,7 +271,8 @@ int main(int argc, char** argv) {
         float deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
 //        renderScene(window, shader_tree, shader_sphere, ground, projection, currentFrame, deltaTime);
-        renderSceneDiagonal(window, shader_tree, shader_sphere, ground, projection, currentFrame, deltaTime);
+//        renderSceneDiagonal(window, shader_tree, shader_sphere, ground, projection, currentFrame, deltaTime);
+        renderSceneDemo(window, shader_tree, shader_sphere, ground, projection, currentFrame, deltaTime);
     }
     return 0;
 }
@@ -247,7 +362,7 @@ void benchMode(int count, int frames, const std::string& out_csv) {
     }
 
     // 4) Prepare scene: a single model instantiated `count` times
-    const std::string modelPath = "../lsysGrammar/Catalog_opt/Tree__standard__iter_5.obj";
+    const std::string modelPath = "../lsysGrammar/Catalog/Tree__standard__iter_5.obj";
     initSlotsSingleModel(modelPath, count, /*spacing=*/5.0f);
 
     // 5) Projection matrix
@@ -366,6 +481,62 @@ void renderSceneDiagonal(Window& window, Shader& shader_tree, Shader& shader_sph
         glm::mat4 modelTree = sceneRotationMatrix * glm::translate(glm::mat4(1.0f), slot.position);
         glUniformMatrix4fv(glGetUniformLocation(shader_tree.ID, "model"), 1, GL_FALSE, glm::value_ptr(modelTree));
         slot.evolutionStages[slot.currentStage]->draw(shader_tree);
+    }
+
+    window.update();
+}
+
+void renderSceneDemo(Window& window, Shader& shader_tree, Shader& shader_sphere, Mesh& ground, glm::mat4& projection, float currentFrame, float deltaTime) {
+    window.processInput(deltaTime);
+    glClearColor(0.2f, 0.3f, 0.4f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glEnable(GL_DEPTH_TEST);
+
+    shader_sphere.use();
+    glm::mat4 model = glm::mat4(1.0f);
+    glm::mat4 view1 = window.camera.GetViewMatrix();
+    glUniformMatrix4fv(glGetUniformLocation(shader_sphere.ID, "model"), 1, GL_FALSE, glm::value_ptr(model));
+    glUniformMatrix4fv(glGetUniformLocation(shader_sphere.ID, "view"), 1, GL_FALSE, glm::value_ptr(view1));
+    glUniformMatrix4fv(glGetUniformLocation(shader_sphere.ID, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+    ground.draw(shader_sphere);
+
+    shader_tree.use();
+    glm::mat4 view = window.camera.GetViewMatrix();
+    glUniformMatrix4fv(glGetUniformLocation(shader_tree.ID, "view"), 1, GL_FALSE, glm::value_ptr(view));
+    glUniformMatrix4fv(glGetUniformLocation(shader_tree.ID, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+    glUniform3f(glGetUniformLocation(shader_tree.ID, "lightPos"), 10.0f, 10.0f, 10.0f);
+    glUniform3f(glGetUniformLocation(shader_tree.ID, "lightColor"), 1.0f, 1.0f, 1.0f);
+    glUniform3f(glGetUniformLocation(shader_tree.ID, "viewPos"),
+                window.camera.Position.x,
+                window.camera.Position.y,
+                window.camera.Position.z);
+
+    // Animate currentStage
+    for (auto& slot : treeSlotsDemo) {
+        if (currentFrame - slot.lastSwitchTime > 60.0f) {
+            slot.currentStage = (slot.currentStage + 1) % slot.evolutionStages.size();
+            slot.lastSwitchTime = currentFrame;
+        }
+        if (!slot.evolutionStages.empty()) {
+            auto& pair = slot.evolutionStages[slot.currentStage];
+            // Determină specia pe baza numelui fișierului trunchi
+            std::string speciesName = pair.speciesName;
+            glm::vec3 trunkColor = speciesColors[speciesName].first;
+            glm::vec3 leafColor  = speciesColors[speciesName].second;
+
+            glm::mat4 modelTree = glm::translate(glm::mat4(1.0f), slot.position);
+            modelTree = glm::scale(modelTree, glm::vec3(5.0f));  // <--- SCALE APLICAT AICI
+            glUniformMatrix4fv(glGetUniformLocation(shader_tree.ID, "model"), 1, GL_FALSE, glm::value_ptr(modelTree));
+
+            // Set color for trunk and draw
+            glUniform3f(glGetUniformLocation(shader_tree.ID, "objectColor"),
+                        trunkColor.r, trunkColor.g, trunkColor.b);
+            if (pair.trunk) pair.trunk->draw(shader_tree);
+            // Set color for leaves and draw
+            glUniform3f(glGetUniformLocation(shader_tree.ID, "objectColor"),
+                        leafColor.r, leafColor.g, leafColor.b);
+            if (pair.leaves) pair.leaves->draw(shader_tree);
+        }
     }
 
     window.update();

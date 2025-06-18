@@ -1,0 +1,492 @@
+[
+  {
+    "mesh": "assets/trees/specie_1/tree_1_iter7.obj",
+    "position": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "scale": 0.92,
+    "rotation_y": 353.6
+  },
+  {
+    "mesh": "assets/trees/specie_1/tree_1_iter7.obj",
+    "position": [
+      5.0,
+      0.0,
+      0.0
+    ],
+    "scale": 1.1,
+    "rotation_y": 242.7
+  },
+  {
+    "mesh": "assets/trees/specie_3/tree_3_iter7.obj",
+    "position": [
+      10.0,
+      0.0,
+      0.0
+    ],
+    "scale": 1.12,
+    "rotation_y": 170.8
+  },
+  {
+    "mesh": "assets/trees/specie_6/tree_6_iter6.obj",
+    "position": [
+      15.0,
+      0.0,
+      0.0
+    ],
+    "scale": 0.97,
+    "rotation_y": 102.8
+  },
+  {
+    "mesh": "assets/trees/specie_7/tree_7_iter7.obj",
+    "position": [
+      20.0,
+      0.0,
+      0.0
+    ],
+    "scale": 1.06,
+    "rotation_y": 85.3
+  },
+  {
+    "mesh": "assets/trees/specie_1/tree_1_iter6.obj",
+    "position": [
+      25.0,
+      0.0,
+      0.0
+    ],
+    "scale": 0.94,
+    "rotation_y": 181.5
+  },
+  {
+    "mesh": "assets/trees/specie_4/tree_4_iter4.obj",
+    "position": [
+      30.0,
+      0.0,
+      0.0
+    ],
+    "scale": 1.1,
+    "rotation_y": 238.2
+  },
+  {
+    "mesh": "assets/trees/specie_5/tree_5_iter7.obj",
+    "position": [
+      30.0,
+      0.0,
+      5.0
+    ],
+    "scale": 1.1,
+    "rotation_y": 353.3
+  },
+  {
+    "mesh": "assets/trees/specie_2/tree_2_iter4.obj",
+    "position": [
+      25.0,
+      0.0,
+      5.0
+    ],
+    "scale": 1.08,
+    "rotation_y": 301.5
+  },
+  {
+    "mesh": "assets/trees/specie_6/tree_6_iter7.obj",
+    "position": [
+      20.0,
+      0.0,
+      5.0
+    ],
+    "scale": 0.94,
+    "rotation_y": 154.8
+  },
+  {
+    "mesh": "assets/trees/specie_1/tree_1_iter7.obj",
+    "position": [
+      15.0,
+      0.0,
+      5.0
+    ],
+    "scale": 1.08,
+    "rotation_y": 288.0
+  },
+  {
+    "mesh": "assets/trees/specie_4/tree_4_iter6.obj",
+    "position": [
+      10.0,
+      0.0,
+      5.0
+    ],
+    "scale": 1.09,
+    "rotation_y": 86.1
+  },
+  {
+    "mesh": "assets/trees/specie_7/tree_7_iter4.obj",
+    "position": [
+      5.0,
+      0.0,
+      5.0
+    ],
+    "scale": 1.04,
+    "rotation_y": 354.9
+  },
+  {
+    "mesh": "assets/trees/specie_4/tree_4_iter5.obj",
+    "position": [
+      0.0,
+      0.0,
+      5.0
+    ],
+    "scale": 1.06,
+    "rotation_y": 44.5
+  },
+  {
+    "mesh": "assets/trees/specie_2/tree_2_iter7.obj",
+    "position": [
+      0.0,
+      0.0,
+      10.0
+    ],
+    "scale": 1.13,
+    "rotation_y": 208.8
+  },
+  {
+    "mesh": "assets/trees/specie_5/tree_5_iter4.obj",
+    "position": [
+      5.0,
+      0.0,
+      10.0
+    ],
+    "scale": 0.89,
+    "rotation_y": 271.0
+  },
+  {
+    "mesh": "assets/trees/specie_4/tree_4_iter5.obj",
+    "position": [
+      10.0,
+      0.0,
+      10.0
+    ],
+    "scale": 0.86,
+    "rotation_y": 89.3
+  },
+  {
+    "mesh": "assets/trees/specie_7/tree_7_iter7.obj",
+    "position": [
+      15.0,
+      0.0,
+      10.0
+    ],
+    "scale": 1.07,
+    "rotation_y": 349.0
+  },
+  {
+    "mesh": "assets/trees/specie_4/tree_4_iter7.obj",
+    "position": [
+      20.0,
+      0.0,
+      10.0
+    ],
+    "scale": 0.93,
+    "rotation_y": 206.4
+  },
+  {
+    "mesh": "assets/trees/specie_5/tree_5_iter4.obj",
+    "position": [
+      25.0,
+      0.0,
+      10.0
+    ],
+    "scale": 1.02,
+    "rotation_y": 205.5
+  },
+  {
+    "mesh": "assets/trees/specie_4/tree_4_iter4.obj",
+    "position": [
+      30.0,
+      0.0,
+      10.0
+    ],
+    "scale": 0.88,
+    "rotation_y": 51.8
+  },
+  {
+    "mesh": "assets/trees/specie_4/tree_4_iter7.obj",
+    "position": [
+      30.0,
+      0.0,
+      15.0
+    ],
+    "scale": 0.94,
+    "rotation_y": 263.8
+  },
+  {
+    "mesh": "assets/trees/specie_2/tree_2_iter4.obj",
+    "position": [
+      25.0,
+      0.0,
+      15.0
+    ],
+    "scale": 1.04,
+    "rotation_y": 249.6
+  },
+  {
+    "mesh": "assets/trees/specie_6/tree_6_iter4.obj",
+    "position": [
+      20.0,
+      0.0,
+      15.0
+    ],
+    "scale": 0.96,
+    "rotation_y": 212.3
+  },
+  {
+    "mesh": "assets/trees/specie_7/tree_7_iter6.obj",
+    "position": [
+      15.0,
+      0.0,
+      15.0
+    ],
+    "scale": 0.97,
+    "rotation_y": 187.7
+  },
+  {
+    "mesh": "assets/trees/specie_1/tree_1_iter4.obj",
+    "position": [
+      10.0,
+      0.0,
+      15.0
+    ],
+    "scale": 1.0,
+    "rotation_y": 332.9
+  },
+  {
+    "mesh": "assets/trees/specie_3/tree_3_iter4.obj",
+    "position": [
+      5.0,
+      0.0,
+      15.0
+    ],
+    "scale": 0.94,
+    "rotation_y": 232.1
+  },
+  {
+    "mesh": "assets/trees/specie_7/tree_7_iter6.obj",
+    "position": [
+      0.0,
+      0.0,
+      15.0
+    ],
+    "scale": 1.09,
+    "rotation_y": 322.0
+  },
+  {
+    "mesh": "assets/trees/specie_5/tree_5_iter4.obj",
+    "position": [
+      0.0,
+      0.0,
+      20.0
+    ],
+    "scale": 1.02,
+    "rotation_y": 231.8
+  },
+  {
+    "mesh": "assets/trees/specie_6/tree_6_iter6.obj",
+    "position": [
+      5.0,
+      0.0,
+      20.0
+    ],
+    "scale": 1.05,
+    "rotation_y": 327.3
+  },
+  {
+    "mesh": "assets/trees/specie_2/tree_2_iter6.obj",
+    "position": [
+      10.0,
+      0.0,
+      20.0
+    ],
+    "scale": 1.08,
+    "rotation_y": 349.8
+  },
+  {
+    "mesh": "assets/trees/specie_6/tree_6_iter7.obj",
+    "position": [
+      15.0,
+      0.0,
+      20.0
+    ],
+    "scale": 0.91,
+    "rotation_y": 63.9
+  },
+  {
+    "mesh": "assets/trees/specie_2/tree_2_iter7.obj",
+    "position": [
+      20.0,
+      0.0,
+      20.0
+    ],
+    "scale": 0.92,
+    "rotation_y": 348.7
+  },
+  {
+    "mesh": "assets/trees/specie_1/tree_1_iter5.obj",
+    "position": [
+      25.0,
+      0.0,
+      20.0
+    ],
+    "scale": 1.01,
+    "rotation_y": 266.7
+  },
+  {
+    "mesh": "assets/trees/specie_4/tree_4_iter4.obj",
+    "position": [
+      30.0,
+      0.0,
+      20.0
+    ],
+    "scale": 1.12,
+    "rotation_y": 147.4
+  },
+  {
+    "mesh": "assets/trees/specie_1/tree_1_iter7.obj",
+    "position": [
+      30.0,
+      0.0,
+      25.0
+    ],
+    "scale": 1.03,
+    "rotation_y": 107.4
+  },
+  {
+    "mesh": "assets/trees/specie_6/tree_6_iter4.obj",
+    "position": [
+      25.0,
+      0.0,
+      25.0
+    ],
+    "scale": 1.0,
+    "rotation_y": 89.2
+  },
+  {
+    "mesh": "assets/trees/specie_3/tree_3_iter6.obj",
+    "position": [
+      20.0,
+      0.0,
+      25.0
+    ],
+    "scale": 0.9,
+    "rotation_y": 227.5
+  },
+  {
+    "mesh": "assets/trees/specie_3/tree_3_iter7.obj",
+    "position": [
+      15.0,
+      0.0,
+      25.0
+    ],
+    "scale": 0.86,
+    "rotation_y": 293.0
+  },
+  {
+    "mesh": "assets/trees/specie_5/tree_5_iter4.obj",
+    "position": [
+      10.0,
+      0.0,
+      25.0
+    ],
+    "scale": 0.88,
+    "rotation_y": 263.7
+  },
+  {
+    "mesh": "assets/trees/specie_6/tree_6_iter4.obj",
+    "position": [
+      5.0,
+      0.0,
+      25.0
+    ],
+    "scale": 1.14,
+    "rotation_y": 224.0
+  },
+  {
+    "mesh": "assets/trees/specie_6/tree_6_iter7.obj",
+    "position": [
+      0.0,
+      0.0,
+      25.0
+    ],
+    "scale": 0.94,
+    "rotation_y": 277.0
+  },
+  {
+    "mesh": "assets/trees/specie_1/tree_1_iter5.obj",
+    "position": [
+      0.0,
+      0.0,
+      30.0
+    ],
+    "scale": 0.87,
+    "rotation_y": 179.4
+  },
+  {
+    "mesh": "assets/trees/specie_6/tree_6_iter5.obj",
+    "position": [
+      5.0,
+      0.0,
+      30.0
+    ],
+    "scale": 1.08,
+    "rotation_y": 175.2
+  },
+  {
+    "mesh": "assets/trees/specie_2/tree_2_iter4.obj",
+    "position": [
+      10.0,
+      0.0,
+      30.0
+    ],
+    "scale": 0.95,
+    "rotation_y": 240.8
+  },
+  {
+    "mesh": "assets/trees/specie_1/tree_1_iter5.obj",
+    "position": [
+      15.0,
+      0.0,
+      30.0
+    ],
+    "scale": 1.05,
+    "rotation_y": 187.7
+  },
+  {
+    "mesh": "assets/trees/specie_6/tree_6_iter6.obj",
+    "position": [
+      20.0,
+      0.0,
+      30.0
+    ],
+    "scale": 0.89,
+    "rotation_y": 328.6
+  },
+  {
+    "mesh": "assets/trees/specie_2/tree_2_iter4.obj",
+    "position": [
+      25.0,
+      0.0,
+      30.0
+    ],
+    "scale": 1.07,
+    "rotation_y": 353.2
+  },
+  {
+    "mesh": "assets/trees/specie_3/tree_3_iter7.obj",
+    "position": [
+      30.0,
+      0.0,
+      30.0
+    ],
+    "scale": 1.06,
+    "rotation_y": 92.9
+  }
+]
