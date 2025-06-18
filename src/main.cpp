@@ -1,4 +1,5 @@
 #include <unordered_map>
+#include "../vendor/json/json.hpp"
 #include <map>
 #include <string>
 #include <unordered_map>
@@ -118,6 +119,8 @@ struct TreeSlotWithLeaves {
     int currentStage = 0;
     float lastSwitchTime = 0.0f;
     glm::vec3 position;
+    glm::vec3 scale = glm::vec3(1.0f);
+    float rotationY = 0.0f;
 };
 
 // Keep the original vector for compatibility with renderSceneDemo
@@ -125,13 +128,13 @@ static std::vector<TreeSlotWithLeaves> treeSlotsDemo;
 
 // Map with trunk/leaf colors for each species
 std::map<std::string, std::pair<glm::vec3, glm::vec3>> speciesColors = {
-    {"SpiralGuardian",      {{0.45f, 0.25f, 0.1f},  {1.0f, 0.6f, 0.8f}}},
-    {"EntropicTitan",       {{0.3f,  0.2f, 0.1f},   {0.6f, 1.0f, 0.6f}}},
-    {"HighlandOak",         {{0.4f,  0.2f, 0.05f},  {0.3f, 0.8f, 0.2f}}},
-    {"GoldenPineTree",      {{0.35f, 0.22f, 0.05f}, {0.1f, 0.5f, 0.1f}}},
-    {"RandomDream",         {{0.3f,  0.15f, 0.1f},  {0.9f, 0.9f, 0.3f}}},
-    {"ThunderstruckGiant",  {{0.25f, 0.2f, 0.1f},   {0.7f, 0.5f, 1.0f}}},
-    {"GoldenOaktree",       {{0.5f,  0.35f, 0.1f},  {0.9f, 0.75f, 0.2f}}}
+    {"Demo/SpiralGuardian",      {{0.45f, 0.25f, 0.1f},  {1.0f, 0.6f, 0.8f}}},
+    {"Demo/EntropicTitan",       {{0.3f,  0.2f, 0.1f},   {0.6f, 1.0f, 0.6f}}},
+    {"Demo/HighlandOak",         {{0.4f,  0.2f, 0.05f},  {0.3f, 0.8f, 0.2f}}},
+    {"Demo/GoldenPineTree",      {{0.35f, 0.22f, 0.05f}, {0.1f, 0.5f, 0.1f}}},
+    {"Demo/RandomDream",         {{0.3f,  0.15f, 0.1f},  {0.9f, 0.9f, 0.3f}}},
+    {"Demo/ThunderstruckGiant",  {{0.25f, 0.2f, 0.1f},   {0.7f, 0.5f, 1.0f}}},
+    {"Demo/GoldenOaktree",       {{0.5f,  0.35f, 0.1f},  {0.9f, 0.75f, 0.2f}}}
 };
 
 // Helper for grid position
@@ -203,7 +206,117 @@ void initDemoSlots() {
             // Layout: 4 slots per species along Z axis, closest (iter_4) at z=0, then further back
             float xOffset = (i - demoSpeciesNames.size()/2.0f) * 9.0f;
             slot.position = glm::vec3(xOffset, 0.0f, -j * zSpacing);
+            slot.scale = glm::vec3(5.0f);
+            slot.rotationY = 0.0f;
             treeSlotsDemo.push_back(slot);
+        }
+    }
+}
+
+// New function: load slots with leaves from Hilbert curve JSON
+void initHilbertSlotsWithLeaves(const std::string& jsonPath) {
+    treeSlotsDemo.clear();
+    std::ifstream inFile(jsonPath);
+    if (!inFile.is_open()) {
+        std::cerr << "❌ Cannot open JSON: " << jsonPath << "\n";
+        return;
+    }
+    nlohmann::json layout;
+    inFile >> layout;
+
+    for (const auto& item : layout) {
+        std::string meshName = item["mesh"].get<std::string>();
+        if (meshName.find("leaf") != std::string::npos) continue;
+
+        TreeSlotWithLeaves slot;
+        // Apply centering offset so the full grid fits symmetrically in [-25, 25] if spacing is ~7.1 and grid is 7x7
+        float spacing = 7.1f;
+        float gridSize = 7.0f;
+        float gridOffset = (gridSize - 1) * spacing / 2.0f;
+        float x = item["position"][0].get<float>() - gridOffset;
+        float y = item["position"][1].get<float>();
+        float z = item["position"][2].get<float>() - gridOffset;
+        slot.position = glm::vec3(x, y, z);
+        if (item.contains("scale")) {
+            float s = item["scale"].get<float>();
+            slot.scale = glm::vec3(s);
+        }
+        if (item.contains("rotation_y")) {
+            slot.rotationY = glm::radians(item["rotation_y"].get<float>());
+        }
+        slot.currentStage = 0;
+        slot.lastSwitchTime = 0.0f;
+
+        std::string fullPath = "../lsysGrammar/" + meshName;
+        std::string leafPath = fullPath.substr(0, fullPath.size() - 4) + "_leaf.obj";
+
+        // Determine base name and offset
+        size_t specEnd = meshName.find("__");
+        std::string baseName = (specEnd != std::string::npos) ? meshName.substr(0, specEnd) : "Unknown";
+        int offset = (baseName == "Demo/HighlandOak") ? 13 : 0;
+
+        std::string speciesName = baseName;
+
+        // Extract iter
+        std::string iterStr = "_iter_";
+        size_t iterPos = meshName.find(iterStr);
+        int iter = 1;
+        if (iterPos != std::string::npos) {
+            iter = std::stoi(meshName.substr(iterPos + iterStr.length()));
+        }
+
+        // Load all 7 iterations
+        std::vector<TreeWithLeaves> evolutionStages;
+        for (int k = 1; k <= 7; ++k) {
+            int iterIndex = k + offset;
+            std::string stem = meshName.substr(0, iterPos);
+            std::string meshIter = stem + "_iter_" + std::to_string(iterIndex) + ".obj";
+            std::string leafIter = stem + "_iter_" + std::to_string(iterIndex) + "_leaf.obj";
+
+            TreeWithLeaves stage;
+            stage.trunk = std::make_shared<Mesh>();
+            stage.leaves = std::make_shared<Mesh>();
+            stage.speciesName = speciesName;
+
+            bool trunkLoaded = stage.trunk->loadFromOBJWithNormalsDebug("../lsysGrammar/" + meshIter);
+            bool leafLoaded = stage.leaves->loadFromOBJWithNormalsDebug("../lsysGrammar/" + leafIter);
+            if (trunkLoaded) {
+                evolutionStages.push_back(stage);
+            }
+        }
+
+        if (evolutionStages.size() == 7) {
+            slot.evolutionStages = evolutionStages;
+            treeSlotsDemo.push_back(slot);
+        }
+    }
+}
+
+// New function: load slots from Hilbert curve JSON
+void initSlotsFromHilbertJSON(const std::string& jsonPath) {
+    treeSlots.clear();
+    std::ifstream inFile(jsonPath);
+    if (!inFile.is_open()) {
+        std::cerr << "❌ Cannot open JSON: " << jsonPath << "\n";
+        return;
+    }
+    nlohmann::json layout;
+    inFile >> layout;
+    for (const auto& item : layout) {
+        TreeSlot slot;
+        slot.position = glm::vec3(
+            item["position"][0].get<float>(),
+            item["position"][1].get<float>(),
+            item["position"][2].get<float>()
+        );
+        slot.currentStage = 0;
+        slot.lastSwitchTime = 0.0f;
+
+        auto mesh = std::make_shared<Mesh>();
+        std::string path = "../lsysGrammar/" + item["mesh"].get<std::string>();
+        if (mesh->loadFromOBJWithNormalsDebug(path)) {
+            slot.evolutionStages.push_back(mesh);
+            treeSlots.push_back(slot);
         }
     }
 }
@@ -233,35 +346,35 @@ int main(int argc, char** argv) {
     ground.loadFromOBJWithNormalsDebug("../lsysGrammar/precomputed_lsystems_old/plane50.obj");
 
     //initSlotGridDiagonal();
-    initDemoSlots();
-
-    int rows = 4, cols = 5;
-    float spacing = 10.0f;
-    std::default_random_engine rng(std::random_device{}());
-
-    for (int i = 0; i < rows; ++i) {
-        for (int j = 0; j < cols; ++j) {
-            TreeSlot slot;
-            slot.position = glm::vec3(j * spacing - cols * spacing / 2.0f, 0.0f, i * spacing - rows * spacing / 2.0f);
-
-            std::string baseName = randomTreeBaseName(rng);
-            int offset = 0;
-            if (baseName.find("FernParametric__parametric_") != std::string::npos) {
-                offset = 7;
-            }
-            for (int k = 1; k <= 6; ++k) {
-                auto mesh = std::make_shared<Mesh>();
-                std::string path = "../lsysGrammar/Catalog_opt/" + baseName + "_iter_" + std::to_string(k+offset) + ".obj";
-                if (mesh->loadFromOBJWithNormalsDebug(path)) {
-                    slot.evolutionStages.push_back(mesh);
-                }
-            }
-
-            slot.currentStage = rand() % slot.evolutionStages.size();
-            slot.lastSwitchTime = glfwGetTime();
-            treeSlots.push_back(slot);
-        }
-    }
+//    initDemoSlots();
+    initHilbertSlotsWithLeaves("../lsysGrammar/scene_layout_hilbert.json");
+//    int rows = 4, cols = 5;
+//    float spacing = 10.0f;
+//    std::default_random_engine rng(std::random_device{}());
+//
+//    for (int i = 0; i < rows; ++i) {
+//        for (int j = 0; j < cols; ++j) {
+//            TreeSlot slot;
+//            slot.position = glm::vec3(j * spacing - cols * spacing / 2.0f, 0.0f, i * spacing - rows * spacing / 2.0f);
+//
+//            std::string baseName = randomTreeBaseName(rng);
+//            int offset = 0;
+//            if (baseName.find("FernParametric__parametric_") != std::string::npos) {
+//                offset = 7;
+//            }
+//            for (int k = 1; k <= 6; ++k) {
+//                auto mesh = std::make_shared<Mesh>();
+//                std::string path = "../lsysGrammar/Catalog_opt/" + baseName + "_iter_" + std::to_string(k+offset) + ".obj";
+//                if (mesh->loadFromOBJWithNormalsDebug(path)) {
+//                    slot.evolutionStages.push_back(mesh);
+//                }
+//            }
+//
+//            slot.currentStage = rand() % slot.evolutionStages.size();
+//            slot.lastSwitchTime = glfwGetTime();
+//            treeSlots.push_back(slot);
+//        }
+//    }
 
     glm::mat4 projection = glm::perspective(glm::radians(45.0f), 1600.0f / 900.0f, 0.1f, 100.0f);
     float lastFrame = 0.0f;
@@ -498,6 +611,8 @@ void renderSceneDemo(Window& window, Shader& shader_tree, Shader& shader_sphere,
     glUniformMatrix4fv(glGetUniformLocation(shader_sphere.ID, "model"), 1, GL_FALSE, glm::value_ptr(model));
     glUniformMatrix4fv(glGetUniformLocation(shader_sphere.ID, "view"), 1, GL_FALSE, glm::value_ptr(view1));
     glUniformMatrix4fv(glGetUniformLocation(shader_sphere.ID, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+    glUniform3f(glGetUniformLocation(shader_sphere.ID, "objectColor"),
+                0.3f, 0.8f, 0.2f);
     ground.draw(shader_sphere);
 
     shader_tree.use();
@@ -513,7 +628,7 @@ void renderSceneDemo(Window& window, Shader& shader_tree, Shader& shader_sphere,
 
     // Animate currentStage
     for (auto& slot : treeSlotsDemo) {
-        if (currentFrame - slot.lastSwitchTime > 60.0f) {
+        if (currentFrame - slot.lastSwitchTime > 1.5f) {
             slot.currentStage = (slot.currentStage + 1) % slot.evolutionStages.size();
             slot.lastSwitchTime = currentFrame;
         }
@@ -524,8 +639,12 @@ void renderSceneDemo(Window& window, Shader& shader_tree, Shader& shader_sphere,
             glm::vec3 trunkColor = speciesColors[speciesName].first;
             glm::vec3 leafColor  = speciesColors[speciesName].second;
 
+
             glm::mat4 modelTree = glm::translate(glm::mat4(1.0f), slot.position);
-            modelTree = glm::scale(modelTree, glm::vec3(5.0f));  // <--- SCALE APLICAT AICI
+            modelTree = glm::rotate(modelTree, slot.rotationY, glm::vec3(0.0f, 1.0f, 0.0f));
+            float iterBasedScale = 0.71f * (slot.currentStage + 1); // iter_1 → 1, iter_7 → 7
+            modelTree = glm::scale(modelTree, slot.scale * iterBasedScale);
+//            modelTree = glm::scale(modelTree, slot.scale);
             glUniformMatrix4fv(glGetUniformLocation(shader_tree.ID, "model"), 1, GL_FALSE, glm::value_ptr(modelTree));
 
             // Set color for trunk and draw
