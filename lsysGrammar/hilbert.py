@@ -58,5 +58,5 @@ for pos in positions_sorted:
     })
 
 # Salvare în fișier JSON
-with open("scene_layout_hilbert.json", "w") as f:
+with open("scene_layout_hilbert_1.json", "w") as f:
     json.dump(scene, f, indent=2)

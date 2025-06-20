@@ -136,83 +136,140 @@ std::map<std::string, std::pair<glm::vec3, glm::vec3>> speciesColors = {
     {"Demo/ThunderstruckGiant",  {{0.25f, 0.2f, 0.1f},   {0.7f, 0.5f, 1.0f}}},
     {"Demo/GoldenOaktree",       {{0.5f,  0.35f, 0.1f},  {0.9f, 0.75f, 0.2f}}}
 };
+//std::map<std::string, std::pair<glm::vec3, glm::vec3>> speciesColors = {
+//        {"SpiralGuardian",      {{0.45f, 0.25f, 0.1f},  {1.0f, 0.6f, 0.8f}}},
+//        {"EntropicTitan",       {{0.3f,  0.2f, 0.1f},   {0.6f, 1.0f, 0.6f}}},
+//        {"HighlandOak",         {{0.4f,  0.2f, 0.05f},  {0.3f, 0.8f, 0.2f}}},
+//        {"GoldenPineTree",      {{0.35f, 0.22f, 0.05f}, {0.1f, 0.5f, 0.1f}}},
+//        {"RandomDream",         {{0.3f,  0.15f, 0.1f},  {0.9f, 0.9f, 0.3f}}},
+//        {"ThunderstruckGiant",  {{0.25f, 0.2f, 0.1f},   {0.7f, 0.5f, 1.0f}}},
+//        {"GoldenOaktree",       {{0.5f,  0.35f, 0.1f},  {0.9f, 0.75f, 0.2f}}}
+//};
 
 // Helper for grid position
 static glm::vec3 computeSlotPosition(int speciesIdx, int slotIdx) {
     int cols = 7;
     int rows = 4;
-    float spacingX = 9.0f;
+    float spacingX = 6.0f;
     float spacingZ = 10.0f;
     float x = (speciesIdx - cols / 2.0f) * spacingX;
     float z = (slotIdx - rows / 2.0f) * spacingZ;
     return glm::vec3(x, 0.0f, z);
 }
 
+//void initDemoSlots() {
+//    treeSlotsDemo.clear();
+//
+//    std::vector<std::string> demoSpeciesNames = {
+//        "GoldenOaktree__parametric_", "GoldenPineTree__parametric_",
+//        "EntropicTitan__stochastic_", "RandomDream__stochastic_", "HighlandOak__parametric_",
+//        "SpiralGuardian__parametric_", "ThunderstruckGiant__parametric_"
+//    };
+//
+//    // For each species, load all 7 stages (iter_1 to iter_7, possibly offset), then create 4 slots per species
+//    float zSpacing = 8.0f;
+//    for (int i = 0; i < (int)demoSpeciesNames.size(); ++i) {
+//        const std::string& name = demoSpeciesNames[i];
+//        int offset = 0;
+//        // Remove trailing "__parametric_" or "__stochastic_" for offset lookup
+//        std::string baseName = name;
+//        size_t pos = baseName.find("__parametric_");
+//        if (pos != std::string::npos) baseName = baseName.substr(0, pos);
+//        pos = baseName.find("__stochastic_");
+//        if (pos != std::string::npos) baseName = baseName.substr(0, pos);
+//        if (speciesIterationOffset.find(baseName) != speciesIterationOffset.end()) {
+//            offset = speciesIterationOffset[baseName];
+//        }
+//        // Extract speciesName for color mapping (remove suffixes)
+//        std::string speciesName = name;
+//        size_t speciesPos = speciesName.find("__parametric_");
+//        if (speciesPos != std::string::npos) speciesName = speciesName.substr(0, speciesPos);
+//        speciesPos = speciesName.find("__stochastic_");
+//        if (speciesPos != std::string::npos) speciesName = speciesName.substr(0, speciesPos);
+//
+//        // Load all 7 stages, iter_1 to iter_7 (or offsetted)
+//        std::vector<TreeWithLeaves> evolutionStages;
+//        for (int k = 1; k <= 7; ++k) {
+//            std::string iterStr = std::to_string(k + offset);
+//            std::string meshName = name + "_iter_" + iterStr + ".obj";
+//            std::string leafName = name + "_iter_" + iterStr + "_leaf.obj";
+//
+//            TreeWithLeaves stage;
+//            stage.trunk = std::make_shared<Mesh>();
+//            stage.leaves = std::make_shared<Mesh>();
+//            stage.speciesName = speciesName;
+//            bool trunkLoaded = stage.trunk->loadFromOBJWithNormalsDebug("../lsysGrammar/Demo/" + meshName);
+//            bool leafLoaded = stage.leaves->loadFromOBJWithNormalsDebug("../lsysGrammar/Demo/" + leafName);
+//            if (trunkLoaded /*&& leafLoaded*/) {
+//                evolutionStages.push_back(stage);
+//            }
+//        }
+//        // Ensure order is ascending by k (already is)
+//        // For the 4 demo slots, assign all stages but start at iter_4..iter_7 (indices 3..6)
+//        for (int j = 0; j < 4; ++j) {
+//            if (evolutionStages.size() < 7) continue; // skip incomplete species
+//            TreeSlotWithLeaves slot;
+//            slot.evolutionStages = evolutionStages;
+//            slot.currentStage = j + 3; // 3,4,5,6 (iter_4 to iter_7)
+//            slot.lastSwitchTime = 0.0f;
+//            // Layout: 4 slots per species along Z axis, closest (iter_4) at z=0, then further back
+//            float xOffset = (i - demoSpeciesNames.size()/2.0f) * 9.0f;
+//            slot.position = glm::vec3(xOffset, 0.0f, -j * zSpacing);
+//            slot.scale = glm::vec3(5.0f);
+//            slot.rotationY = 0.0f;
+//            treeSlotsDemo.push_back(slot);
+//        }
+//    }
+//}
 void initDemoSlots() {
     treeSlotsDemo.clear();
 
     std::vector<std::string> demoSpeciesNames = {
-        "GoldenOaktree__parametric_", "GoldenPineTree__parametric_",
-        "EntropicTitan__stochastic_", "RandomDream__stochastic_", "HighlandOak__parametric_",
-        "SpiralGuardian__parametric_", "ThunderstruckGiant__parametric_"
+            "GoldenOaktree__parametric_", "GoldenPineTree__parametric_",
+            "EntropicTitan__stochastic_", "RandomDream__stochastic_", "HighlandOak__parametric_",
+            "SpiralGuardian__parametric_", "ThunderstruckGiant__parametric_"
     };
 
-    // For each species, load all 7 stages (iter_1 to iter_7, possibly offset), then create 4 slots per species
-    float zSpacing = 8.0f;
+    // For each species, fill 4 slots in the grid
     for (int i = 0; i < (int)demoSpeciesNames.size(); ++i) {
         const std::string& name = demoSpeciesNames[i];
-        int offset = 0;
-        // Remove trailing "__parametric_" or "__stochastic_" for offset lookup
-        std::string baseName = name;
-        size_t pos = baseName.find("__parametric_");
-        if (pos != std::string::npos) baseName = baseName.substr(0, pos);
-        pos = baseName.find("__stochastic_");
-        if (pos != std::string::npos) baseName = baseName.substr(0, pos);
-        if (speciesIterationOffset.find(baseName) != speciesIterationOffset.end()) {
-            offset = speciesIterationOffset[baseName];
-        }
-        // Extract speciesName for color mapping (remove suffixes)
-        std::string speciesName = name;
-        size_t speciesPos = speciesName.find("__parametric_");
-        if (speciesPos != std::string::npos) speciesName = speciesName.substr(0, speciesPos);
-        speciesPos = speciesName.find("__stochastic_");
-        if (speciesPos != std::string::npos) speciesName = speciesName.substr(0, speciesPos);
-
-        // Load all 7 stages, iter_1 to iter_7 (or offsetted)
-        std::vector<TreeWithLeaves> evolutionStages;
-        for (int k = 1; k <= 7; ++k) {
-            std::string iterStr = std::to_string(k + offset);
-            std::string meshName = name + "_iter_" + iterStr + ".obj";
-            std::string leafName = name + "_iter_" + iterStr + "_leaf.obj";
-
-            TreeWithLeaves stage;
-            stage.trunk = std::make_shared<Mesh>();
-            stage.leaves = std::make_shared<Mesh>();
-            stage.speciesName = speciesName;
-            bool trunkLoaded = stage.trunk->loadFromOBJWithNormalsDebug("../lsysGrammar/Demo/" + meshName);
-            bool leafLoaded = stage.leaves->loadFromOBJWithNormalsDebug("../lsysGrammar/Demo/" + leafName);
-            if (trunkLoaded /*&& leafLoaded*/) {
-                evolutionStages.push_back(stage);
-            }
-        }
-        // Ensure order is ascending by k (already is)
-        // For the 4 demo slots, assign all stages but start at iter_4..iter_7 (indices 3..6)
-        for (int j = 0; j < 4; ++j) {
-            if (evolutionStages.size() < 7) continue; // skip incomplete species
+        for (int slotIdx = 0; slotIdx < 4; ++slotIdx) {
             TreeSlotWithLeaves slot;
-            slot.evolutionStages = evolutionStages;
-            slot.currentStage = j + 3; // 3,4,5,6 (iter_4 to iter_7)
-            slot.lastSwitchTime = 0.0f;
-            // Layout: 4 slots per species along Z axis, closest (iter_4) at z=0, then further back
-            float xOffset = (i - demoSpeciesNames.size()/2.0f) * 9.0f;
-            slot.position = glm::vec3(xOffset, 0.0f, -j * zSpacing);
-            slot.scale = glm::vec3(5.0f);
-            slot.rotationY = 0.0f;
-            treeSlotsDemo.push_back(slot);
+            slot.position = computeSlotPosition(i, slotIdx);
+
+            int offset = 0;
+            // Remove trailing "__parametric_" or "__stochastic_" for offset lookup
+            std::string baseName = name;
+            size_t pos = baseName.find("__parametric_");
+            if (pos != std::string::npos) baseName = baseName.substr(0, pos);
+            pos = baseName.find("__stochastic_");
+            if (pos != std::string::npos) baseName = baseName.substr(0, pos);
+            if (speciesIterationOffset.find(baseName) != speciesIterationOffset.end()) {
+                offset = speciesIterationOffset[baseName];
+            }
+            for (int k = 4; k <= 7; ++k) {
+                std::string iterStr = std::to_string(k + offset);
+                std::string meshName = name + "_iter_" + iterStr + ".obj";
+                std::string leafName = name + "_iter_" + iterStr + "_leaf.obj";
+
+                TreeWithLeaves stage;
+                stage.trunk = std::make_shared<Mesh>();
+                stage.leaves = std::make_shared<Mesh>();
+                stage.speciesName = baseName;
+                bool trunkLoaded = stage.trunk->loadFromOBJWithNormalsDebug("../lsysGrammar/Demo/" + meshName);
+                bool leafLoaded = stage.leaves->loadFromOBJWithNormalsDebug("../lsysGrammar/Demo/" + leafName);
+                if (trunkLoaded /*&& leafLoaded*/) {
+                    slot.evolutionStages.push_back(stage);
+                }
+            }
+            if (!slot.evolutionStages.empty()) {
+                slot.currentStage = 0;
+                slot.lastSwitchTime = 0.0f;
+                treeSlotsDemo.push_back(slot);
+            }
         }
     }
 }
-
 // New function: load slots with leaves from Hilbert curve JSON
 void initHilbertSlotsWithLeaves(const std::string& jsonPath) {
     treeSlotsDemo.clear();
