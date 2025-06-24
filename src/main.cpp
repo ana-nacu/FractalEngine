@@ -522,7 +522,7 @@ int main(int argc, char** argv) {
 //        renderSceneDiagonal(window, shader_tree, shader_sphere, ground, projection, currentFrame, deltaTime);
         if(!regenerating){
             renderSceneDemo(window, shader_tree, shader_sphere, ground, projection, currentFrame, deltaTime);
-            
+
         }
     }
     return 0;
