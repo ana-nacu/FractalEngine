@@ -17,9 +17,10 @@ public:
     int level = 5;
     float select = 0;
     float pos = 0;
+    GLFWwindow* window;
 
 private:
-    GLFWwindow* window;
+
     static void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 };
 

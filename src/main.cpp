@@ -1,4 +1,6 @@
+// Add GLM include for glm::vec3 etc.
 #include <unordered_map>
+#include <glm/glm.hpp>
 #include "../vendor/json/json.hpp"
 #include <map>
 #include <string>
@@ -29,8 +31,17 @@ std::unordered_map<std::string, int> speciesIterationOffset = {
 #include <fstream>
 #include <chrono>
 #include <iomanip>
+#include <GLFW/glfw3.h>
+
 extern float rotationX;
 extern float rotationY;
+
+// Light rotation controls
+bool rotateLight = false;
+glm::vec3 lightPos = glm::vec3(10.0f, 10.0f, 10.0f);
+float lightAngle = 0.0f;
+bool paused = false;
+bool regenerating = false;
 
 // Forward declaration
 void renderScene(Window& window, Shader& shader_tree, Shader& shader_sphere, Mesh& ground, glm::mat4& projection, float currentFrame, float deltaTime);
@@ -40,6 +51,7 @@ void benchMode(int count, int frames, const std::string& out_csv);
 void initSlotsSingleModel(const std::string& obj_path, int count, float spacing);
 void renderSceneDemo(Window& window, Shader& shader_tree, Shader& shader_sphere, Mesh& ground, glm::mat4& projection, float currentFrame, float deltaTime);
 void initDemoSlots();
+void initHilbertSlotsWithLeaves(const std::string& jsonPath);
 
 
 struct TreeSlot {
@@ -51,6 +63,61 @@ struct TreeSlot {
 
 std::vector<TreeSlot> treeSlots;
 
+
+// GLFW key callback
+// Ensure required headers are included
+#include <filesystem>
+#include <random>
+#include <vector>
+#include <string>
+#include <iostream>
+
+// Forward declaration for Hilbert initialization
+void initWithHilbert(const std::string& hilbertFile);
+
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
+    if (key == GLFW_KEY_SPACE && action == GLFW_PRESS) {
+        paused = !paused;
+    }
+    if (key == GLFW_KEY_R && action == GLFW_PRESS) {
+        regenerating=true;
+        // Pick random JSON from FillSpace folder using POSIX dirent
+        std::string folder = "../lsysGrammar/FillSpace";
+        std::vector<std::string> jsonFiles;
+
+        DIR* dir = opendir(folder.c_str());
+        if (dir) {
+            struct dirent* entry;
+            while ((entry = readdir(dir)) != nullptr) {
+                std::string name = entry->d_name;
+                if (name.size() >= 5 && name.substr(name.size() - 5) == ".json") {
+                    jsonFiles.push_back(folder + "/" + name);
+                }
+            }
+            closedir(dir);
+        }
+
+        if (!jsonFiles.empty()) {
+            std::random_device rd;
+            std::mt19937 gen(rd());
+            std::uniform_int_distribution<> distrib(0, jsonFiles.size() - 1);
+            std::string randomFile = jsonFiles[distrib(gen)];
+
+            std::cout << "🔄 Regenerating Hilbert from: " << randomFile << std::endl;
+            initHilbertSlotsWithLeaves(randomFile);
+            regenerating=false;
+
+        } else {
+            std::cerr << "❌ No JSON files found in FillSpace folder.\n";
+            regenerating=false;
+
+        }
+
+    }
+    if (key == GLFW_KEY_L && action == GLFW_PRESS) {
+        rotateLight = !rotateLight;
+    }
+}
 std::string randomTreeBaseName(std::default_random_engine& rng) {
     std::vector<std::string> species = {"FernParametric__parametric_", "SimpleTree__parametric_", "StochasticTree__stochastic_", "Tree__standard_"};
     std::uniform_int_distribution<size_t> dist(0, species.size() - 1);
@@ -401,10 +468,11 @@ int main(int argc, char** argv) {
     Shader shader_sphere("../shaders/vertex-sfera.glsl", "../shaders/fragment-sfera.glsl");
     Mesh ground;
     ground.loadFromOBJWithNormalsDebug("../lsysGrammar/precomputed_lsystems_old/plane50.obj");
-
+    // Set GLFW key callback for controls
+    glfwSetKeyCallback(window.window, key_callback);
     //initSlotGridDiagonal();
 //    initDemoSlots();
-    initHilbertSlotsWithLeaves("../lsysGrammar/scene_layout_hilbert.json");
+    initHilbertSlotsWithLeaves("../lsysGrammar/FillSpace/scene_layout_hilbert.json");
 //    int rows = 4, cols = 5;
 //    float spacing = 10.0f;
 //    std::default_random_engine rng(std::random_device{}());
@@ -440,9 +508,22 @@ int main(int argc, char** argv) {
         float currentFrame = glfwGetTime();
         float deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
+        // Light rotation logic
+        if (rotateLight) {
+            lightAngle += 0.3*deltaTime;
+
+            // Rotație verticală (soare care răsare și apune pe cer)
+            float radius = 35.0f;
+            lightPos.x = 0.0f; // centru sus pe planșă
+            lightPos.y = radius * sin(lightAngle);  // ↑ și ↓ pe cer
+            lightPos.z = radius * cos(lightAngle);  // avans în z (spre scenă)
+        }
 //        renderScene(window, shader_tree, shader_sphere, ground, projection, currentFrame, deltaTime);
 //        renderSceneDiagonal(window, shader_tree, shader_sphere, ground, projection, currentFrame, deltaTime);
-        renderSceneDemo(window, shader_tree, shader_sphere, ground, projection, currentFrame, deltaTime);
+        if(!regenerating){
+            renderSceneDemo(window, shader_tree, shader_sphere, ground, projection, currentFrame, deltaTime);
+            
+        }
     }
     return 0;
 }
@@ -656,6 +737,8 @@ void renderSceneDiagonal(Window& window, Shader& shader_tree, Shader& shader_sph
     window.update();
 }
 
+
+
 void renderSceneDemo(Window& window, Shader& shader_tree, Shader& shader_sphere, Mesh& ground, glm::mat4& projection, float currentFrame, float deltaTime) {
     window.processInput(deltaTime);
     glClearColor(0.2f, 0.3f, 0.4f, 1.0f);
@@ -670,24 +753,28 @@ void renderSceneDemo(Window& window, Shader& shader_tree, Shader& shader_sphere,
     glUniformMatrix4fv(glGetUniformLocation(shader_sphere.ID, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
     glUniform3f(glGetUniformLocation(shader_sphere.ID, "objectColor"),
                 0.3f, 0.8f, 0.2f);
+    glUniform3f(glGetUniformLocation(shader_tree.ID, "lightPos"), lightPos.x, lightPos.y, lightPos.z);
+    glUniform3f(glGetUniformLocation(shader_tree.ID, "lightColor"), 0.7f, 0.7f, 0.7f);
     ground.draw(shader_sphere);
 
     shader_tree.use();
     glm::mat4 view = window.camera.GetViewMatrix();
     glUniformMatrix4fv(glGetUniformLocation(shader_tree.ID, "view"), 1, GL_FALSE, glm::value_ptr(view));
     glUniformMatrix4fv(glGetUniformLocation(shader_tree.ID, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
-    glUniform3f(glGetUniformLocation(shader_tree.ID, "lightPos"), 10.0f, 10.0f, 10.0f);
+    glUniform3f(glGetUniformLocation(shader_tree.ID, "lightPos"), lightPos.x, lightPos.y, lightPos.z);
     glUniform3f(glGetUniformLocation(shader_tree.ID, "lightColor"), 1.0f, 1.0f, 1.0f);
     glUniform3f(glGetUniformLocation(shader_tree.ID, "viewPos"),
                 window.camera.Position.x,
                 window.camera.Position.y,
                 window.camera.Position.z);
 
-    // Animate currentStage
+    // Animate currentStage if not paused
     for (auto& slot : treeSlotsDemo) {
-        if (currentFrame - slot.lastSwitchTime > 1.5f) {
-            slot.currentStage = (slot.currentStage + 1) % slot.evolutionStages.size();
-            slot.lastSwitchTime = currentFrame;
+        if (!paused) {
+            if (currentFrame - slot.lastSwitchTime > 1.5f) {
+                slot.currentStage = (slot.currentStage + 1) % slot.evolutionStages.size();
+                slot.lastSwitchTime = currentFrame;
+            }
         }
         if (!slot.evolutionStages.empty()) {
             auto& pair = slot.evolutionStages[slot.currentStage];
@@ -696,12 +783,11 @@ void renderSceneDemo(Window& window, Shader& shader_tree, Shader& shader_sphere,
             glm::vec3 trunkColor = speciesColors[speciesName].first;
             glm::vec3 leafColor  = speciesColors[speciesName].second;
 
-
             glm::mat4 modelTree = glm::translate(glm::mat4(1.0f), slot.position);
             modelTree = glm::rotate(modelTree, slot.rotationY, glm::vec3(0.0f, 1.0f, 0.0f));
             float iterBasedScale = 0.71f * (slot.currentStage + 1); // iter_1 → 1, iter_7 → 7
             modelTree = glm::scale(modelTree, slot.scale * iterBasedScale);
-//            modelTree = glm::scale(modelTree, slot.scale);
+            //            modelTree = glm::scale(modelTree, slot.scale);
             glUniformMatrix4fv(glGetUniformLocation(shader_tree.ID, "model"), 1, GL_FALSE, glm::value_ptr(modelTree));
 
             // Set color for trunk and draw

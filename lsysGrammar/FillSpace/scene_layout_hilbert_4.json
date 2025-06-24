@@ -1,0 +1,492 @@
+[
+  {
+    "mesh": "Demo/EntropicTitan__stochastic__iter_5.obj",
+    "position": [
+      0.0,
+      0,
+      0.0
+    ],
+    "scale": 1,
+    "rotation_y": 252.5
+  },
+  {
+    "mesh": "Demo/RandomDream__stochastic__iter_6.obj",
+    "position": [
+      0.0,
+      0,
+      7.1
+    ],
+    "scale": 1,
+    "rotation_y": 325.7
+  },
+  {
+    "mesh": "Demo/GoldenOaktree__parametric__iter_5.obj",
+    "position": [
+      7.1,
+      0,
+      7.1
+    ],
+    "scale": 1,
+    "rotation_y": 227.5
+  },
+  {
+    "mesh": "Demo/GoldenOaktree__parametric__iter_7.obj",
+    "position": [
+      7.1,
+      0,
+      0.0
+    ],
+    "scale": 1,
+    "rotation_y": 191.2
+  },
+  {
+    "mesh": "Demo/GoldenPineTree__parametric__iter_5.obj",
+    "position": [
+      14.2,
+      0,
+      0.0
+    ],
+    "scale": 1,
+    "rotation_y": 3.8
+  },
+  {
+    "mesh": "Demo/SpiralGuardian__parametric__iter_5.obj",
+    "position": [
+      21.3,
+      0,
+      0.0
+    ],
+    "scale": 1,
+    "rotation_y": 354.3
+  },
+  {
+    "mesh": "Demo/ThunderstruckGiant__parametric__iter_7.obj",
+    "position": [
+      21.3,
+      0,
+      7.1
+    ],
+    "scale": 1,
+    "rotation_y": 83.0
+  },
+  {
+    "mesh": "Demo/EntropicTitan__stochastic__iter_5.obj",
+    "position": [
+      14.2,
+      0,
+      7.1
+    ],
+    "scale": 1,
+    "rotation_y": 53.1
+  },
+  {
+    "mesh": "Demo/GoldenOaktree__parametric__iter_5.obj",
+    "position": [
+      14.2,
+      0,
+      14.2
+    ],
+    "scale": 1,
+    "rotation_y": 344.6
+  },
+  {
+    "mesh": "Demo/ThunderstruckGiant__parametric__iter_5.obj",
+    "position": [
+      21.3,
+      0,
+      14.2
+    ],
+    "scale": 1,
+    "rotation_y": 20.1
+  },
+  {
+    "mesh": "Demo/EntropicTitan__stochastic__iter_6.obj",
+    "position": [
+      21.3,
+      0,
+      21.3
+    ],
+    "scale": 1,
+    "rotation_y": 320.1
+  },
+  {
+    "mesh": "Demo/GoldenOaktree__parametric__iter_6.obj",
+    "position": [
+      14.2,
+      0,
+      21.3
+    ],
+    "scale": 1,
+    "rotation_y": 149.2
+  },
+  {
+    "mesh": "Demo/RandomDream__stochastic__iter_6.obj",
+    "position": [
+      7.1,
+      0,
+      21.3
+    ],
+    "scale": 1,
+    "rotation_y": 131.5
+  },
+  {
+    "mesh": "Demo/GoldenPineTree__parametric__iter_6.obj",
+    "position": [
+      7.1,
+      0,
+      14.2
+    ],
+    "scale": 1,
+    "rotation_y": 318.0
+  },
+  {
+    "mesh": "Demo/RandomDream__stochastic__iter_7.obj",
+    "position": [
+      0.0,
+      0,
+      14.2
+    ],
+    "scale": 1,
+    "rotation_y": 48.2
+  },
+  {
+    "mesh": "Demo/ThunderstruckGiant__parametric__iter_7.obj",
+    "position": [
+      0.0,
+      0,
+      21.3
+    ],
+    "scale": 1,
+    "rotation_y": 137.7
+  },
+  {
+    "mesh": "Demo/RandomDream__stochastic__iter_5.obj",
+    "position": [
+      0.0,
+      0,
+      28.4
+    ],
+    "scale": 1,
+    "rotation_y": 359.3
+  },
+  {
+    "mesh": "Demo/GoldenOaktree__parametric__iter_6.obj",
+    "position": [
+      7.1,
+      0,
+      28.4
+    ],
+    "scale": 1,
+    "rotation_y": 138.8
+  },
+  {
+    "mesh": "Demo/EntropicTitan__stochastic__iter_7.obj",
+    "position": [
+      7.1,
+      0,
+      35.5
+    ],
+    "scale": 1,
+    "rotation_y": 19.2
+  },
+  {
+    "mesh": "Demo/EntropicTitan__stochastic__iter_7.obj",
+    "position": [
+      0.0,
+      0,
+      35.5
+    ],
+    "scale": 1,
+    "rotation_y": 147.1
+  },
+  {
+    "mesh": "Demo/HighlandOak__parametric__iter_19.obj",
+    "position": [
+      0.0,
+      0.5,
+      42.6
+    ],
+    "scale": 1,
+    "rotation_y": 308.4
+  },
+  {
+    "mesh": "Demo/ThunderstruckGiant__parametric__iter_7.obj",
+    "position": [
+      7.1,
+      0,
+      42.6
+    ],
+    "scale": 1,
+    "rotation_y": 80.3
+  },
+  {
+    "mesh": "Demo/GoldenOaktree__parametric__iter_5.obj",
+    "position": [
+      14.2,
+      0,
+      42.6
+    ],
+    "scale": 1,
+    "rotation_y": 25.7
+  },
+  {
+    "mesh": "Demo/ThunderstruckGiant__parametric__iter_6.obj",
+    "position": [
+      21.3,
+      0,
+      42.6
+    ],
+    "scale": 1,
+    "rotation_y": 53.4
+  },
+  {
+    "mesh": "Demo/EntropicTitan__stochastic__iter_5.obj",
+    "position": [
+      21.3,
+      0,
+      35.5
+    ],
+    "scale": 1,
+    "rotation_y": 198.9
+  },
+  {
+    "mesh": "Demo/EntropicTitan__stochastic__iter_6.obj",
+    "position": [
+      14.2,
+      0,
+      35.5
+    ],
+    "scale": 1,
+    "rotation_y": 100.0
+  },
+  {
+    "mesh": "Demo/ThunderstruckGiant__parametric__iter_6.obj",
+    "position": [
+      14.2,
+      0,
+      28.4
+    ],
+    "scale": 1,
+    "rotation_y": 41.7
+  },
+  {
+    "mesh": "Demo/GoldenOaktree__parametric__iter_7.obj",
+    "position": [
+      21.3,
+      0,
+      28.4
+    ],
+    "scale": 1,
+    "rotation_y": 259.5
+  },
+  {
+    "mesh": "Demo/GoldenOaktree__parametric__iter_5.obj",
+    "position": [
+      28.4,
+      0,
+      28.4
+    ],
+    "scale": 1,
+    "rotation_y": 95.2
+  },
+  {
+    "mesh": "Demo/GoldenOaktree__parametric__iter_5.obj",
+    "position": [
+      35.5,
+      0,
+      28.4
+    ],
+    "scale": 1,
+    "rotation_y": 65.6
+  },
+  {
+    "mesh": "Demo/ThunderstruckGiant__parametric__iter_7.obj",
+    "position": [
+      35.5,
+      0,
+      35.5
+    ],
+    "scale": 1,
+    "rotation_y": 217.8
+  },
+  {
+    "mesh": "Demo/EntropicTitan__stochastic__iter_5.obj",
+    "position": [
+      28.4,
+      0,
+      35.5
+    ],
+    "scale": 1,
+    "rotation_y": 83.2
+  },
+  {
+    "mesh": "Demo/SpiralGuardian__parametric__iter_6.obj",
+    "position": [
+      28.4,
+      0,
+      42.6
+    ],
+    "scale": 1,
+    "rotation_y": 152.2
+  },
+  {
+    "mesh": "Demo/RandomDream__stochastic__iter_7.obj",
+    "position": [
+      35.5,
+      0,
+      42.6
+    ],
+    "scale": 1,
+    "rotation_y": 324.0
+  },
+  {
+    "mesh": "Demo/GoldenPineTree__parametric__iter_7.obj",
+    "position": [
+      42.6,
+      0,
+      42.6
+    ],
+    "scale": 1,
+    "rotation_y": 124.2
+  },
+  {
+    "mesh": "Demo/GoldenOaktree__parametric__iter_7.obj",
+    "position": [
+      42.6,
+      0,
+      35.5
+    ],
+    "scale": 1,
+    "rotation_y": 253.8
+  },
+  {
+    "mesh": "Demo/ThunderstruckGiant__parametric__iter_7.obj",
+    "position": [
+      42.6,
+      0,
+      28.4
+    ],
+    "scale": 1,
+    "rotation_y": 36.0
+  },
+  {
+    "mesh": "Demo/SpiralGuardian__parametric__iter_7.obj",
+    "position": [
+      42.6,
+      0,
+      14.2
+    ],
+    "scale": 1,
+    "rotation_y": 251.6
+  },
+  {
+    "mesh": "Demo/SpiralGuardian__parametric__iter_5.obj",
+    "position": [
+      42.6,
+      0,
+      21.3
+    ],
+    "scale": 1,
+    "rotation_y": 194.9
+  },
+  {
+    "mesh": "Demo/HighlandOak__parametric__iter_20.obj",
+    "position": [
+      35.5,
+      0.5,
+      21.3
+    ],
+    "scale": 1,
+    "rotation_y": 119.9
+  },
+  {
+    "mesh": "Demo/EntropicTitan__stochastic__iter_6.obj",
+    "position": [
+      28.4,
+      0,
+      21.3
+    ],
+    "scale": 1,
+    "rotation_y": 80.5
+  },
+  {
+    "mesh": "Demo/RandomDream__stochastic__iter_6.obj",
+    "position": [
+      28.4,
+      0,
+      14.2
+    ],
+    "scale": 1,
+    "rotation_y": 7.9
+  },
+  {
+    "mesh": "Demo/GoldenOaktree__parametric__iter_5.obj",
+    "position": [
+      35.5,
+      0,
+      14.2
+    ],
+    "scale": 1,
+    "rotation_y": 72.9
+  },
+  {
+    "mesh": "Demo/HighlandOak__parametric__iter_19.obj",
+    "position": [
+      35.5,
+      0.5,
+      7.1
+    ],
+    "scale": 1,
+    "rotation_y": 11.3
+  },
+  {
+    "mesh": "Demo/ThunderstruckGiant__parametric__iter_5.obj",
+    "position": [
+      28.4,
+      0,
+      7.1
+    ],
+    "scale": 1,
+    "rotation_y": 177.7
+  },
+  {
+    "mesh": "Demo/SpiralGuardian__parametric__iter_5.obj",
+    "position": [
+      28.4,
+      0,
+      0.0
+    ],
+    "scale": 1,
+    "rotation_y": 332.7
+  },
+  {
+    "mesh": "Demo/EntropicTitan__stochastic__iter_7.obj",
+    "position": [
+      35.5,
+      0,
+      0.0
+    ],
+    "scale": 1,
+    "rotation_y": 186.0
+  },
+  {
+    "mesh": "Demo/RandomDream__stochastic__iter_5.obj",
+    "position": [
+      42.6,
+      0,
+      0.0
+    ],
+    "scale": 1,
+    "rotation_y": 167.8
+  },
+  {
+    "mesh": "Demo/HighlandOak__parametric__iter_19.obj",
+    "position": [
+      42.6,
+      0.5,
+      7.1
+    ],
+    "scale": 1,
+    "rotation_y": 348.7
+  }
+]

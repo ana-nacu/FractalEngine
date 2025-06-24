@@ -46,17 +46,21 @@ for pos in positions_sorted:
         mesh_path = f"Demo/{specie}_iter_{iteration+13}.obj"
     else:
         mesh_path = f"Demo/{specie}_iter_{iteration}.obj"
+    if specie.startswith("HighlandOak"):
+        y=0.5
+    else:
+        y=0
 
 
     x = round(pos[0] * slot_spacing, 2)
     z = round(pos[1] * slot_spacing, 2)
     scene.append({
         "mesh": mesh_path,
-        "position": [x, 0.0, z],
+        "position": [x, y, z],
         "scale": 1,
         "rotation_y": rotation_y
     })
 
 # Salvare în fișier JSON
-with open("scene_layout_hilbert_1.json", "w") as f:
+with open("FillSpace/scene_layout_hilbert_5.json", "w") as f:
     json.dump(scene, f, indent=2)
