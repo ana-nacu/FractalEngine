@@ -4,9 +4,14 @@ The project combines a **Python grammar engine** (rule expansion & geometry expo
 As a bonus, it includes **mesh optimisation** (CGAL) and **reproducible experiments** (CSV logs, scripts).
 
 <p align="center">
+  <img src="snapshot02.png" alt="Generated individual model" width="820"/>
+</p>
+<p align="center">
+  <img src="iteration01.png" alt="Visual iteration process" width="820"/>
+</p>
+<p align="center">
   <img src="demo_scene_front.png" alt="Generated fractal vegetation scene" width="820"/>
 </p>
-
 
 ---
 
